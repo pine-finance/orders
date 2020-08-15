@@ -1,0 +1,22 @@
+type Order @entity {
+  id: ID!
+  owner: String!
+  fromToken: String!
+  toToken: String
+  minReturn: BigInt
+  module: String
+  amount: BigInt!
+  relayer: String
+  status: OrderStatus!
+  txHash: Bytes!
+  blockNumber: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  data: Bytes!
+}
+
+enum OrderStatus @entity {
+  open
+  executed
+  cancelled
+}

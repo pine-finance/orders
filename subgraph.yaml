@@ -1,0 +1,48 @@
+specVersion: 0.0.2
+description: Uniswapex orders
+repository: https://github.com/UniswapEx/orders
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: ERC20
+    network: rinkeby
+    source:
+      abi: ERC20
+      startBlock: 7020000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Order
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleERC20Transfer
+      file: ./src/handlers/ERC20.ts
+  - kind: ethereum/contract
+    name: UniswapexV2
+    network: rinkeby
+    source:
+      abi: UniswapexV2
+      startBlock: 7020000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Order
+      abis:
+        - name: UniswapexV2
+          file: ./abis/UniswapexV2.json
+      eventHandlers:
+        - event: DepositETH(indexed bytes32,indexed address,uint256,bytes)
+          handler: handleETHOrderCreated
+        - event: OrderExecuted(indexed bytes32,address,address,address,bytes,bytes,uint256,uint256)
+          handler: handleOrderExecuted
+        - event: OrderCancelled(indexed bytes32,address,address,address,bytes,uint256)
+          handler: handleOrderCancelled
+      file: ./src/handlers/Order.ts
