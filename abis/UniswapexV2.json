@@ -492,6 +492,45 @@
         "type": "bytes"
       }
     ],
+    "name": "keyOf",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IModule",
+        "name": "_module",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IERC20",
+        "name": "_inputToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_witness",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
+      }
+    ],
     "name": "vaultOfOrder",
     "outputs": [
       {

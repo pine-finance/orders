@@ -9,7 +9,7 @@ dataSources:
     network: rinkeby
     source:
       abi: ERC20
-      startBlock: 7020000
+      startBlock: 7025340
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -19,6 +19,8 @@ dataSources:
       abis:
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: UniswapexV2
+          file: ./abis/UniswapexV2.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleERC20Transfer
@@ -28,7 +30,8 @@ dataSources:
     network: rinkeby
     source:
       abi: UniswapexV2
-      startBlock: 7020000
+      startBlock: 7025340
+      address: '0xb6548416b3db631e5351fa8ab227f85608050fdb'
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3

@@ -111,6 +111,24 @@ export class Order extends Entity {
     }
   }
 
+  get witness(): string {
+    let value = this.get("witness");
+    return value.toString();
+  }
+
+  set witness(value: string) {
+    this.set("witness", Value.fromString(value));
+  }
+
+  get secret(): string {
+    let value = this.get("secret");
+    return value.toString();
+  }
+
+  set secret(value: string) {
+    this.set("secret", Value.fromString(value));
+  }
+
   get amount(): BigInt {
     let value = this.get("amount");
     return value.toBigInt();
@@ -120,20 +138,46 @@ export class Order extends Entity {
     this.set("amount", Value.fromBigInt(value));
   }
 
-  get relayer(): string | null {
-    let value = this.get("relayer");
+  get vault(): string {
+    let value = this.get("vault");
+    return value.toString();
+  }
+
+  set vault(value: string) {
+    this.set("vault", Value.fromString(value));
+  }
+
+  get bought(): BigInt | null {
+    let value = this.get("bought");
     if (value === null) {
       return null;
     } else {
-      return value.toString();
+      return value.toBigInt();
     }
   }
 
-  set relayer(value: string | null) {
+  set bought(value: BigInt | null) {
     if (value === null) {
-      this.unset("relayer");
+      this.unset("bought");
     } else {
-      this.set("relayer", Value.fromString(value as string));
+      this.set("bought", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get auxData(): Bytes | null {
+    let value = this.get("auxData");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set auxData(value: Bytes | null) {
+    if (value === null) {
+      this.unset("auxData");
+    } else {
+      this.set("auxData", Value.fromBytes(value as Bytes));
     }
   }
 
@@ -146,13 +190,47 @@ export class Order extends Entity {
     this.set("status", Value.fromString(value));
   }
 
-  get txHash(): Bytes {
-    let value = this.get("txHash");
+  get createdTxHash(): Bytes {
+    let value = this.get("createdTxHash");
     return value.toBytes();
   }
 
-  set txHash(value: Bytes) {
-    this.set("txHash", Value.fromBytes(value));
+  set createdTxHash(value: Bytes) {
+    this.set("createdTxHash", Value.fromBytes(value));
+  }
+
+  get executedTxHash(): Bytes | null {
+    let value = this.get("executedTxHash");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set executedTxHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("executedTxHash");
+    } else {
+      this.set("executedTxHash", Value.fromBytes(value as Bytes));
+    }
+  }
+
+  get cancelledTxHash(): Bytes | null {
+    let value = this.get("cancelledTxHash");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set cancelledTxHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("cancelledTxHash");
+    } else {
+      this.set("cancelledTxHash", Value.fromBytes(value as Bytes));
+    }
   }
 
   get blockNumber(): BigInt {

@@ -5,10 +5,16 @@ type Order @entity {
   toToken: String
   minReturn: BigInt
   module: String
+  witness: String!
+  secret: String!
   amount: BigInt!
-  relayer: String
+  vault: String!
+  bought: BigInt
+  auxData: Bytes
   status: OrderStatus!
-  txHash: Bytes!
+  createdTxHash: Bytes!
+  executedTxHash: Bytes
+  cancelledTxHash: Bytes
   blockNumber: BigInt!
   createdAt: BigInt!
   updatedAt: BigInt!
