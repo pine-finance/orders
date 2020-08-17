@@ -31,7 +31,7 @@ dataSources:
     source:
       abi: UniswapexV2
       startBlock: {{startBlock}}
-      address: {{address}}
+      address: '{{address}}'
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
