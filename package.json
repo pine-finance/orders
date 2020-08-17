@@ -2,11 +2,16 @@
   "name": "uniswapex_orders",
   "version": "0.1.0",
   "scripts": {
-    "codegen": "graph codegen --debug --output-dir src/entities/"
+    "codegen": "graph codegen --debug --output-dir src/entities/",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:rinkeby": "mustache config/rinkeby.json subgraph.template.yaml > subgraph.yaml",
+    "deploy:mainnet": "npm run prepare:rinkeby && npx graph deploy --debug  --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/  uniswapex/uniswapex_orders",
+    "deploy:rinkeby": "npm run prepare:rinkeby && npx graph deploy --debug  --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/  uniswapex/uniswapex_orders_rinkeby"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.16.0",
     "@graphprotocol/graph-ts": "^0.16.0",
+    "mustache": "^4.0.1",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.4"
   },

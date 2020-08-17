@@ -6,10 +6,10 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: ERC20
-    network: rinkeby
+    network: {{network}}
     source:
       abi: ERC20
-      startBlock: 7025340
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -27,11 +27,11 @@ dataSources:
       file: ./src/handlers/ERC20.ts
   - kind: ethereum/contract
     name: UniswapexV2
-    network: rinkeby
+    network: {{network}}
     source:
       abi: UniswapexV2
-      startBlock: 7025340
-      address: '0xb6548416b3db631e5351fa8ab227f85608050fdb'
+      startBlock: {{startBlock}}
+      address: {{address}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3

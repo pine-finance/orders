@@ -1,12 +1,8 @@
-import { log, Bytes, Address } from "@graphprotocol/graph-ts"
+import { Address } from "@graphprotocol/graph-ts"
 
 export const OPEN = 'open'
 export const EXECUTED = 'executed'
 export const CANCELLED = 'cancelled'
-
-export function parseOrderFromERC20Transfer(txInput: Bytes): Bytes {
-  return txInput
-}
 
 export function getAddressByNetwork(network: string): Address {
   if (network == 'mainnet') {

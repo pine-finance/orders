@@ -9,7 +9,6 @@ import { getAddressByNetwork, OPEN, CANCELLED, EXECUTED } from '../modules/Order
 
 export function handleOrderCreation(event: Transfer): void {
   //@TODO: Check if two orders at the same tx is possible
-
   let module = '0x' + event.transaction.input.toHex().substr(10 + (64 * 4) + 24, 40) /// 4 - 20 bytes
   let inputToken = event.transaction.to.toHex()
   let owner = event.transaction.from.toHex()
@@ -34,12 +33,8 @@ export function handleOrderCreation(event: Transfer): void {
   order.minReturn = BigInt.fromUnsignedBytes(ByteArray.fromHexString('0x' + event.transaction.input.toHexString().substr(10 + (64 * 12), 64)).reverse() as Bytes) // 12 - 32 bytes
   order.amount = event.params.value
   order.vault = event.params.to.toHex()
-
-  // order.minReturn =
-  order.data = event.transaction.input
   order.status = OPEN
 
-  // order.toToken
   // Tx data
   order.data = event.transaction.input
   order.createdTxHash = event.transaction.hash
@@ -73,7 +68,6 @@ export function handleETHOrderCreated(event: DepositETH): void {
   order.createdAt = event.block.timestamp
   order.updatedAt = event.block.timestamp
 
-
   order.save()
 }
 
@@ -87,8 +81,8 @@ export function handleOrderExecuted(event: OrderExecuted): void {
   order.updatedAt = event.block.timestamp
 
   order.save()
-
 }
+
 export function handleOrderCancelled(event: OrderCancelled): void {
   let order = Order.load(event.params._key.toHex())
 
