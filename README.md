@@ -1,12 +1,18 @@
 # Uniswapex V2 orders graph
 
-- Rinkeby: https://thegraph.com/explorer/subgraph/uniswapex/uniswapex_orders_rinkeby
 - Mainnet: https://thegraph.com/explorer/subgraph/uniswapex/uniswapex_orders
+- Rinkeby: https://thegraph.com/explorer/subgraph/uniswapex/uniswapex_orders_rinkeby
 
 ### Install
 
 ```bash
 npm run install
+```
+
+### Deploy mainnet
+
+```bash
+npm run deploy:mainnet
 ```
 
 ### Deploy rinkeby
@@ -15,8 +21,3 @@ npm run install
 npm run deploy:rinkeby
 ```
 
-### Deploy mainnet
-
-```bash
-npm run deploy:mainnet
-```
