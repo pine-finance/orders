@@ -7,12 +7,44 @@ import { Order } from '../entities/schema'
 import { getAddressByNetwork, OPEN, CANCELLED, EXECUTED } from '../modules/Order'
 
 
-export function handleOrderCreation(event: Transfer): void {
+/**
+ * @dev ERC20 transfer should have an extra data we use to identify a uniswapex order.
+ * A transfer with an uniswapex order looks like:
+ *
+ * 0xa9059cbb
+ * 000000000000000000000000c8b6046580622eb6037d5ef2ca74faf63dc93631
+ * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
+ * 0000000000000000000000000000000000000000000000000000000000000060
+ * 0000000000000000000000000000000000000000000000000000000000000120
+ * 000000000000000000000000ef6c6b0bce4d2060efab0d16736c6ce7473deddc
+ * 000000000000000000000000c7ad46e0b8a400bb3c915120d284aafba8fc4735
+ * 0000000000000000000000005523f2fc0889a6d46ae686bcd8daa9658cf56496
+ * 0000000000000000000000008153f16765f9124d754c432add5bd40f76f057b4
+ * 00000000000000000000000000000000000000000000000000000000000000c0
+ * 20756e697377617065782e696f2020d83ddc09ea73fa863b164de440a270be31
+ * 0000000000000000000000000000000000000000000000000000000000000040
+ * 000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+ * 00000000000000000000000000000000000000000000000004b1e20ebf83c000
+ *
+ * The important part is 20756e697377617065782e696f which is the hexa of ` uniswapex.io` used for the secret.
+ * We use that as the index to parse the input data:
+ * - module = 5 * 32 bytes before secret index
+ * - inputToken = ERC20 which emits the Transfer event
+ * - owner = `from` parameter of the Transfer event
+ * - witness = 2 * 32 bytes before secret index
+ * - secret = 32 bytes from the secret index
+ * - data = 2 * 32 bytes after secret index (64 bytes length)
+ * - outputToken =  2 * 32 bytes after secret index
+ * - minReturn =  3 * 32 bytes after secret index
+ *
+ * @param event
+ */
+export function handleOrderCreationByERC20Transfer(index: number, event: Transfer): void {
   //@TODO: Check if two orders at the same tx is possible
-  let module = '0x' + event.transaction.input.toHex().substr(10 + (64 * 4) + 24, 40) /// 4 - 20 bytes
+  let module = '0x' + event.transaction.input.toHex().substr(index - (64 * 5) + 24, 40) /// 4 - 20 bytes
   let inputToken = event.transaction.to.toHex()
   let owner = event.transaction.from.toHex()
-  let witness = '0x' + event.transaction.input.toHex().substr(10 + (64 * 7) + 24, 40) // 7  - 20 bytes
+  let witness = '0x' + event.transaction.input.toHex().substr(index - (64 * 2) + 24, 40) // 7  - 20 bytes
 
   let uniswapExV2 = UniswapexV2.bind(getAddressByNetwork(dataSource.network()))
 
@@ -20,18 +52,18 @@ export function handleOrderCreation(event: Transfer): void {
     Address.fromString(inputToken),
     Address.fromString(owner),
     Address.fromString(witness),
-    Bytes.fromHexString('0x' + event.transaction.input.toHex().substr(10 + (64 * 11), 64 * 2)) as Bytes // 10  - 64 bytes
+    Bytes.fromHexString('0x' + event.transaction.input.toHex().substr(index + (64 * 2), 64 * 2)) as Bytes // 10  - 64 bytes
   ).toHex())
 
   // Order data
   order.owner = owner
   order.module = module
-  order.fromToken = inputToken
+  order.inputToken = inputToken
   order.witness = witness
-  order.secret = '0x' + event.transaction.input.toHex().substr(10 + (64 * 9), 64) /// 9 - 32 bytes
-  order.toToken = '0x' + event.transaction.input.toHex().substr(10 + (64 * 11) + 24, 40) // 11  - 20 bytes
-  order.minReturn = BigInt.fromUnsignedBytes(ByteArray.fromHexString('0x' + event.transaction.input.toHexString().substr(10 + (64 * 12), 64)).reverse() as Bytes) // 12 - 32 bytes
-  order.amount = event.params.value
+  order.secret = '0x' + event.transaction.input.toHex().substr(index, 64) /// 9 - 32 bytes
+  order.outputToken = '0x' + event.transaction.input.toHex().substr(index + (64 * 2) + 24, 40) // 11  - 20 bytes
+  order.minReturn = BigInt.fromUnsignedBytes(ByteArray.fromHexString('0x' + event.transaction.input.toHexString().substr(index + (64 * 3), 64)).reverse() as Bytes) // 12 - 32 bytes
+  order.inputAmount = event.params.value
   order.vault = event.params.to.toHex()
   order.status = OPEN
 
@@ -51,13 +83,13 @@ export function handleETHOrderCreated(event: DepositETH): void {
   // Order data
   order.owner = event.transaction.from.toHex()
   order.module = '0x' + event.params._data.toHex().substr(2 + (64 * 0) + 24, 40) /// 0 - 20 bytes
-  order.fromToken = '0x' + event.params._data.toHex().substr(2 + (64 * 1) + 24, 40) /// 1 - 32 bytes
+  order.inputToken = '0x' + event.params._data.toHex().substr(2 + (64 * 1) + 24, 40) /// 1 - 32 bytes
   order.witness = '0x' + event.params._data.toHex().substr(2 + (64 * 3) + 24, 40) // 3  - 20 bytes
   order.secret = '0x' + event.params._data.toHex().substr(2 + (64 * 5), 64) // 5  - 32 bytes
-  order.toToken = '0x' + event.params._data.toHex().substr(2 + (64 * 7) + 24, 40) // 7 - 20 bytes
+  order.outputToken = '0x' + event.params._data.toHex().substr(2 + (64 * 7) + 24, 40) // 7 - 20 bytes
 
   order.minReturn = BigInt.fromUnsignedBytes(ByteArray.fromHexString('0x' + event.params._data.toHex().substr(2 + (64 * 8), 64)).reverse() as Bytes) // 8 - 32 bytes
-  order.amount = event.params._amount
+  order.inputAmount = event.params._amount
   order.vault = event.transaction.to.toHex()
   order.status = OPEN
 

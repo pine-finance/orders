@@ -51,30 +51,22 @@ export class Order extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
-  get fromToken(): string {
-    let value = this.get("fromToken");
+  get inputToken(): string {
+    let value = this.get("inputToken");
     return value.toString();
   }
 
-  set fromToken(value: string) {
-    this.set("fromToken", Value.fromString(value));
+  set inputToken(value: string) {
+    this.set("inputToken", Value.fromString(value));
   }
 
-  get toToken(): string | null {
-    let value = this.get("toToken");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+  get outputToken(): string {
+    let value = this.get("outputToken");
+    return value.toString();
   }
 
-  set toToken(value: string | null) {
-    if (value === null) {
-      this.unset("toToken");
-    } else {
-      this.set("toToken", Value.fromString(value as string));
-    }
+  set outputToken(value: string) {
+    this.set("outputToken", Value.fromString(value));
   }
 
   get minReturn(): BigInt | null {
@@ -129,13 +121,13 @@ export class Order extends Entity {
     this.set("secret", Value.fromString(value));
   }
 
-  get amount(): BigInt {
-    let value = this.get("amount");
+  get inputAmount(): BigInt {
+    let value = this.get("inputAmount");
     return value.toBigInt();
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set inputAmount(value: BigInt) {
+    this.set("inputAmount", Value.fromBigInt(value));
   }
 
   get vault(): string {
