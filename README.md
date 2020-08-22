@@ -1,5 +1,8 @@
 # Uniswapex V2 orders graph
 
+- Rinkeby: https://thegraph.com/explorer/subgraph/uniswapex/uniswapex_orders_rinkeby
+- Mainnet: https://thegraph.com/explorer/subgraph/uniswapex/uniswapex_orders
+
 ### Install
 
 ```bash
