@@ -1,4 +1,4 @@
-import { BigInt, Address, ByteArray, Bytes, dataSource } from '@graphprotocol/graph-ts'
+import { log, BigInt, Address, ByteArray, Bytes, dataSource } from '@graphprotocol/graph-ts'
 
 import { Transfer } from '../entities/ERC20/ERC20'
 import { DepositETH, OrderExecuted, OrderCancelled, UniswapexV2 } from '../entities/UniswapexV2/UniswapexV2'
@@ -39,30 +39,51 @@ import { getAddressByNetwork, OPEN, CANCELLED, EXECUTED } from '../modules/Order
  *
  * @param event
  */
-export function handleOrderCreationByERC20Transfer(index: number, event: Transfer): void {
-  //@TODO: Check if two orders at the same tx is possible
-  let module = '0x' + event.transaction.input.toHex().substr(index - (64 * 5) + 24, 40) /// 4 - 20 bytes
+export function handleOrderCreationByERC20Transfer(event: Transfer): void {
+  let index_ = event.transaction.input.toHexString().indexOf('20756e697377617065782e696f')
+  if (index_ == -1) {
+    return
+  }
+
+  let index = BigInt.fromI32(index_)
+
+  // Transaction input should be bigger than index + (64 * 4)
+  // Index should be bigger than (64 * 5)
+  if (!(index.minus(BigInt.fromI32(64 * 5)).gt(BigInt.fromI32(0)) &&
+    BigInt.fromI32(event.transaction.input.toHexString().length).ge(index.plus(BigInt.fromI32((64 * 4) - 1))))) {
+    log.debug('Error creating an order from an ERC20 transfer: {}', [event.transaction.hash.toHexString()])
+    return
+  }
+
+  let module = '0x' + event.transaction.input.toHexString().substr(index.minus(BigInt.fromI32((64 * 5) - 24)).toI32(), 40)
   let inputToken = event.transaction.to.toHex()
   let owner = event.transaction.from.toHex()
-  let witness = '0x' + event.transaction.input.toHex().substr(index - (64 * 2) + 24, 40) // 7  - 20 bytes
+  let witness = '0x' + event.transaction.input.toHexString().substr(index.minus(BigInt.fromI32((64 * 2) - 24)).toI32(), 40)
 
   let uniswapExV2 = UniswapexV2.bind(getAddressByNetwork(dataSource.network()))
 
-  let order = new Order(uniswapExV2.keyOf(Address.fromString(module),
-    Address.fromString(inputToken),
-    Address.fromString(owner),
-    Address.fromString(witness),
-    Bytes.fromHexString('0x' + event.transaction.input.toHex().substr(index + (64 * 2), 64 * 2)) as Bytes // 10  - 64 bytes
-  ).toHex())
+  let order = new Order(
+    uniswapExV2.keyOf(
+      Address.fromString(module),
+      Address.fromString(inputToken),
+      Address.fromString(owner),
+      Address.fromString(witness),
+      Bytes.fromHexString('0x' + event.transaction.input.toHexString().substr(index.plus(BigInt.fromI32(64 * 2)).toI32(), 64 * 2)) as Bytes
+    ).toHex()
+  )
 
   // Order data
   order.owner = owner
   order.module = module
   order.inputToken = inputToken
   order.witness = witness
-  order.secret = '0x' + event.transaction.input.toHex().substr(index, 64) /// 9 - 32 bytes
-  order.outputToken = '0x' + event.transaction.input.toHex().substr(index + (64 * 2) + 24, 40) // 11  - 20 bytes
-  order.minReturn = BigInt.fromUnsignedBytes(ByteArray.fromHexString('0x' + event.transaction.input.toHexString().substr(index + (64 * 3), 64)).reverse() as Bytes) // 12 - 32 bytes
+  order.secret = '0x' + event.transaction.input.toHexString().substr(index.toI32(), 64)
+  order.outputToken = '0x' + event.transaction.input.toHexString().substr(index.plus(BigInt.fromI32((64 * 2) + 24)).toI32(), 40)
+  order.minReturn = BigInt.fromUnsignedBytes(
+    ByteArray.fromHexString(
+      '0x' + event.transaction.input.toHexString().substr(index.plus(BigInt.fromI32((64 * 3) + 24)).toI32(), 64)
+    ).reverse() as Bytes
+  )
   order.inputAmount = event.params.value
   order.vault = event.params.to.toHex()
   order.status = OPEN
