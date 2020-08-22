@@ -1,13 +1,13 @@
 type Order @entity {
   id: ID!
   owner: String!
-  fromToken: String!
-  toToken: String
+  inputToken: String!
+  outputToken: String!
   minReturn: BigInt
   module: String
   witness: String!
   secret: String!
-  amount: BigInt!
+  inputAmount: BigInt!
   vault: String!
   bought: BigInt
   auxData: Bytes
