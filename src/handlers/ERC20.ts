@@ -1,5 +1,3 @@
-import { BigInt } from '@graphprotocol/graph-ts'
-
 import { Transfer } from '../entities/ERC20/ERC20'
 import { handleOrderCreationByERC20Transfer } from './Order'
 
