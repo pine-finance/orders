@@ -260,4 +260,13 @@ export class Order extends Entity {
   set data(value: Bytes) {
     this.set("data", Value.fromBytes(value));
   }
+
+  get inputData(): Bytes {
+    let value = this.get("inputData");
+    return value.toBytes();
+  }
+
+  set inputData(value: Bytes) {
+    this.set("inputData", Value.fromBytes(value));
+  }
 }
