@@ -59,16 +59,17 @@ export function handleOrderCreationByERC20Transfer(event: Transfer): void {
   let inputToken = event.transaction.to.toHex()
   let owner = event.transaction.from.toHex()
   let witness = '0x' + event.transaction.input.toHexString().substr(index.minus(BigInt.fromI32((64 * 2) - 24)).toI32(), 40)
+  let data = Bytes.fromHexString('0x' + event.transaction.input.toHexString().substr(index.plus(BigInt.fromI32(64 * 2)).toI32(), 64 * 2)) as Bytes
 
-  let uniswapExV2 = UniswapexV2.bind(getAddressByNetwork(dataSource.network()))
+  let uniswapexV2 = UniswapexV2.bind(getAddressByNetwork(dataSource.network()))
 
   let order = new Order(
-    uniswapExV2.keyOf(
+    uniswapexV2.keyOf(
       Address.fromString(module),
       Address.fromString(inputToken),
       Address.fromString(owner),
       Address.fromString(witness),
-      Bytes.fromHexString('0x' + event.transaction.input.toHexString().substr(index.plus(BigInt.fromI32(64 * 2)).toI32(), 64 * 2)) as Bytes
+      data
     ).toHex()
   )
 
@@ -86,10 +87,11 @@ export function handleOrderCreationByERC20Transfer(event: Transfer): void {
   )
   order.inputAmount = event.params.value
   order.vault = event.params.to.toHex()
+  order.data = data
   order.status = OPEN
 
   // Tx data
-  order.data = event.transaction.input
+  order.inputData = event.transaction.input
   order.createdTxHash = event.transaction.hash
   order.blockNumber = event.block.number
   order.createdAt = event.block.timestamp
@@ -112,10 +114,11 @@ export function handleETHOrderCreated(event: DepositETH): void {
   order.minReturn = BigInt.fromUnsignedBytes(ByteArray.fromHexString('0x' + event.params._data.toHex().substr(2 + (64 * 8), 64)).reverse() as Bytes) // 8 - 32 bytes
   order.inputAmount = event.params._amount
   order.vault = event.transaction.to.toHex()
+  order.data = Bytes.fromHexString('0x' + event.params._data.toHex().substr(2 + (64 * 7), 64 * 2)) as Bytes
   order.status = OPEN
 
   // Tx data
-  order.data = event.transaction.input
+  order.inputData = event.transaction.input
   order.createdTxHash = event.transaction.hash
   order.blockNumber = event.block.number
   order.createdAt = event.block.timestamp
@@ -138,6 +141,22 @@ export function handleOrderExecuted(event: OrderExecuted): void {
 
 export function handleOrderCancelled(event: OrderCancelled): void {
   let order = Order.load(event.params._key.toHex())
+
+  // Check if the cancel was a complete success or not.
+  // Sometimes by running out of gas the tx is partially completed
+  // check: https://etherscan.io/tx/0x29da2e620e5f8606d74a9b73c353a8f393acc9cd58c1750dd2edd05cf33a5d1c
+  let uniswapexV2 = UniswapexV2.bind(event.address)
+  const res = uniswapexV2.try_existOrder(
+    Address.fromString(order.module),
+    Address.fromString(order.inputToken),
+    Address.fromString(order.owner),
+    Address.fromString(order.witness),
+    order.data
+  )
+
+  if (res.reverted || res.value) {
+    return
+  }
 
   order.cancelledTxHash = event.transaction.hash
   order.status = CANCELLED

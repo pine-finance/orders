@@ -19,6 +19,7 @@ type Order @entity {
   createdAt: BigInt!
   updatedAt: BigInt!
   data: Bytes!
+  inputData: Bytes!
 }
 
 enum OrderStatus @entity {
