@@ -130,6 +130,10 @@ export function handleETHOrderCreated(event: DepositETH): void {
 export function handleOrderExecuted(event: OrderExecuted): void {
   let order = Order.load(event.params._key.toHex())
 
+  if (order == null) {
+    return
+  }
+
   order.executedTxHash = event.transaction.hash
   order.status = EXECUTED
   order.bought = event.params._bought
@@ -141,6 +145,9 @@ export function handleOrderExecuted(event: OrderExecuted): void {
 
 export function handleOrderCancelled(event: OrderCancelled): void {
   let order = Order.load(event.params._key.toHex())
+  if (order == null) {
+    return
+  }
 
   // Check if the cancel was a complete success or not.
   // Sometimes by running out of gas the tx is partially completed
