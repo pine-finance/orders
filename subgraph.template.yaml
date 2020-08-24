@@ -1,15 +1,15 @@
 specVersion: 0.0.2
-description: Uniswapex orders
-repository: https://github.com/UniswapEx/orders
+description: Pine Finance orders
+repository: https://github.com/pine-finance/orders
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: ERC20
-    network: {{network}}
+    network: {{network }}
     source:
       abi: ERC20
-      startBlock: {{startBlock}}
+      startBlock: {{ startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -19,18 +19,18 @@ dataSources:
       abis:
         - name: ERC20
           file: ./abis/ERC20.json
-        - name: UniswapexV2
-          file: ./abis/UniswapexV2.json
+        - name: PineCore
+          file: ./abis/PineCore.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleERC20Transfer
       file: ./src/handlers/ERC20.ts
   - kind: ethereum/contract
-    name: UniswapexV2
-    network: {{network}}
+    name: PineCore
+    network: {{ network }}
     source:
-      abi: UniswapexV2
-      startBlock: {{startBlock}}
+      abi: PineCore
+      startBlock: {{ startBlock }}
       address: '{{address}}'
     mapping:
       kind: ethereum/events
@@ -39,8 +39,8 @@ dataSources:
       entities:
         - Order
       abis:
-        - name: UniswapexV2
-          file: ./abis/UniswapexV2.json
+        - name: PineCore
+          file: ./abis/PineCore.json
       eventHandlers:
         - event: DepositETH(indexed bytes32,indexed address,uint256,bytes)
           handler: handleETHOrderCreated

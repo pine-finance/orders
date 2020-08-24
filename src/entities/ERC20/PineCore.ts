@@ -129,7 +129,7 @@ export class OrderExecuted__Params {
   }
 }
 
-export class UniswapexV2__decodeOrderResult {
+export class PineCore__decodeOrderResult {
   value0: Address;
   value1: Address;
   value2: Address;
@@ -165,9 +165,9 @@ export class UniswapexV2__decodeOrderResult {
   }
 }
 
-export class UniswapexV2 extends SmartContract {
-  static bind(address: Address): UniswapexV2 {
-    return new UniswapexV2("UniswapexV2", address);
+export class PineCore extends SmartContract {
+  static bind(address: Address): PineCore {
+    return new PineCore("PineCore", address);
   }
 
   ETH_ADDRESS(): Address {
@@ -228,10 +228,10 @@ export class UniswapexV2 extends SmartContract {
     return CallResult.fromValue(value[0].toBoolean());
   }
 
-  decodeOrder(_data: Bytes): UniswapexV2__decodeOrderResult {
+  decodeOrder(_data: Bytes): PineCore__decodeOrderResult {
     let result = super.call("decodeOrder", [EthereumValue.fromBytes(_data)]);
 
-    return new UniswapexV2__decodeOrderResult(
+    return new PineCore__decodeOrderResult(
       result[0].toAddress(),
       result[1].toAddress(),
       result[2].toAddress(),
@@ -241,14 +241,14 @@ export class UniswapexV2 extends SmartContract {
     );
   }
 
-  try_decodeOrder(_data: Bytes): CallResult<UniswapexV2__decodeOrderResult> {
+  try_decodeOrder(_data: Bytes): CallResult<PineCore__decodeOrderResult> {
     let result = super.tryCall("decodeOrder", [EthereumValue.fromBytes(_data)]);
     if (result.reverted) {
       return new CallResult();
     }
     let value = result.value;
     return CallResult.fromValue(
-      new UniswapexV2__decodeOrderResult(
+      new PineCore__decodeOrderResult(
         value[0].toAddress(),
         value[1].toAddress(),
         value[2].toAddress(),

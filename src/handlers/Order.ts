@@ -1,15 +1,15 @@
 import { log, BigInt, Address, ByteArray, Bytes, dataSource } from '@graphprotocol/graph-ts'
 
 import { Transfer } from '../entities/ERC20/ERC20'
-import { DepositETH, OrderExecuted, OrderCancelled, UniswapexV2 } from '../entities/UniswapexV2/UniswapexV2'
+import { DepositETH, OrderExecuted, OrderCancelled, PineCore } from '../entities/PineCore/PineCore'
 
 import { Order } from '../entities/schema'
 import { getAddressByNetwork, OPEN, CANCELLED, EXECUTED } from '../modules/Order'
 
 
 /**
- * @dev ERC20 transfer should have an extra data we use to identify a uniswapex order.
- * A transfer with an uniswapex order looks like:
+ * @dev ERC20 transfer should have an extra data we use to identify a pine order.
+ * A transfer with a pine order looks like:
  *
  * 0xa9059cbb
  * 000000000000000000000000c8b6046580622eb6037d5ef2ca74faf63dc93631
@@ -21,12 +21,12 @@ import { getAddressByNetwork, OPEN, CANCELLED, EXECUTED } from '../modules/Order
  * 0000000000000000000000005523f2fc0889a6d46ae686bcd8daa9658cf56496
  * 0000000000000000000000008153f16765f9124d754c432add5bd40f76f057b4
  * 00000000000000000000000000000000000000000000000000000000000000c0
- * 20756e697377617065782e696f2020d83ddc09ea73fa863b164de440a270be31
+ * 2070696e652e66696e616e63652020d83ddc09ea73fa863b164de440a270be31
  * 0000000000000000000000000000000000000000000000000000000000000040
  * 000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
  * 00000000000000000000000000000000000000000000000004b1e20ebf83c000
  *
- * The important part is 20756e697377617065782e696f which is the hexa of ` uniswapex.io` used for the secret.
+ * The important part is 2070696e652e66696e616e6365 which is the hexa of ` pine.finance` used for the secret.
  * We use that as the index to parse the input data:
  * - module = 5 * 32 bytes before secret index
  * - inputToken = ERC20 which emits the Transfer event
@@ -40,7 +40,7 @@ import { getAddressByNetwork, OPEN, CANCELLED, EXECUTED } from '../modules/Order
  * @param event
  */
 export function handleOrderCreationByERC20Transfer(event: Transfer): void {
-  let index_ = event.transaction.input.toHexString().indexOf('20756e697377617065782e696f')
+  let index_ = event.transaction.input.toHexString().indexOf('2070696e652e66696e616e6365')
   if (index_ == -1) {
     return
   }
@@ -61,10 +61,10 @@ export function handleOrderCreationByERC20Transfer(event: Transfer): void {
   let witness = '0x' + event.transaction.input.toHexString().substr(index.minus(BigInt.fromI32((64 * 2) - 24)).toI32(), 40)
   let data = Bytes.fromHexString('0x' + event.transaction.input.toHexString().substr(index.plus(BigInt.fromI32(64 * 2)).toI32(), 64 * 2)) as Bytes
 
-  let uniswapexV2 = UniswapexV2.bind(getAddressByNetwork(dataSource.network()))
+  let pineCore = PineCore.bind(getAddressByNetwork(dataSource.network()))
 
   let order = new Order(
-    uniswapexV2.keyOf(
+    pineCore.keyOf(
       Address.fromString(module),
       Address.fromString(inputToken),
       Address.fromString(owner),
@@ -145,8 +145,8 @@ export function handleOrderCancelled(event: OrderCancelled): void {
   // Check if the cancel was a complete success or not.
   // Sometimes by running out of gas the tx is partially completed
   // check: https://etherscan.io/tx/0x29da2e620e5f8606d74a9b73c353a8f393acc9cd58c1750dd2edd05cf33a5d1c
-  let uniswapexV2 = UniswapexV2.bind(event.address)
-  const res = uniswapexV2.try_existOrder(
+  let pineCore = PineCore.bind(event.address)
+  let res = pineCore.try_existOrder(
     Address.fromString(order.module),
     Address.fromString(order.inputToken),
     Address.fromString(order.owner),

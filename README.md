@@ -1,7 +1,7 @@
-# Uniswapex V2 orders graph
+# Pine Finance orders graph
 
-- Mainnet: https://thegraph.com/explorer/subgraph/uniswapex/uniswapex_orders
-- Rinkeby: https://thegraph.com/explorer/subgraph/uniswapex/uniswapex_orders_rinkeby
+- Mainnet: https://thegraph.com/explorer/subgraph/pine-inance/pine_orders
+- Rinkeby: https://thegraph.com/explorer/subgraph/pine-finance/pine_orders_rinkeby
 
 ### Install
 
@@ -20,4 +20,3 @@ npm run deploy:mainnet
 ```bash
 npm run deploy:rinkeby
 ```
-
