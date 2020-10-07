@@ -45,6 +45,13 @@ export function handleOrderCreationByERC20Transfer(event: Transfer): void {
     return
   }
 
+  // Skip multiple transfer events
+  let recipient = '0x' + event.transaction.input.toHexString().substr(BigInt.fromI32(10 + 24).toI32(), 40)
+  if (recipient != event.params.to.toHexString()) {
+    log.debug('Skipped Transfer recipient expected {}, but receive {}. On Tx {}', [recipient, event.params.to.toHexString(), event.transaction.hash.toHexString()])
+    return
+  }
+
   let index = BigInt.fromI32(index_)
 
   // Transaction input should be bigger than index + (64 * 4)
