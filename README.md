@@ -1,6 +1,6 @@
 # Pine Finance orders graph
 
-- Mainnet: https://thegraph.com/explorer/subgraph/pine-inance/pine_orders
+- Mainnet: https://thegraph.com/explorer/subgraph/pine-finance/pine_orders
 - Rinkeby: https://thegraph.com/explorer/subgraph/pine-finance/pine_orders_rinkeby
 
 ### Install
